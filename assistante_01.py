@@ -2,6 +2,7 @@ from collections import UserDict
 import datetime
 import requests
 
+
 class Field:
     def __init__(self, value=None):
         self.value = value
@@ -70,7 +71,7 @@ def input_error(func):
             return "Give me name and phone please"
         except IndexError:
             return "Enter both name and phone"
-        
+
     return inner
 
 
@@ -158,22 +159,34 @@ def main():
         if command == "hello":
             print("How can I help you?")
         elif command == "add":
-            name = Name(user_input[1])
-            phone = Phone(user_input[2])
-            print(add_contact(name, phone))
+            if len(user_input) == 3:
+                name = Name(user_input[1].capitalize())
+                phone = Phone(user_input[2])
+                print(add_contact(name, phone))
+            else:
+                print("Invalid command. Type 'help' to see the available commands.")
         elif command == "change":
-            name = Name(user_input[1])
-            old_phone = Phone(user_input[2])
-            new_phone = Phone(user_input[3])
-            print(change_contact(name, old_phone, new_phone))
+            if len(user_input) == 4:
+                name = Name(user_input[1].capitalize())
+                old_phone = Phone(user_input[2])
+                new_phone = Phone(user_input[3])
+                print(change_contact(name, old_phone, new_phone))
+            else:
+                print("Invalid command. Type 'help' to see the available commands.")
         elif command == "phone":
-            name = Name(user_input[1])
-            print(get_phone(name))
-        elif command == "show" and user_input[1] == "all":
+            if len(user_input) == 2:
+                name = Name(user_input[1].capitalize())
+                print(get_phone(name))
+            else:
+                print("Invalid command. Type 'help' to see the available commands.")
+        elif command == "show" and len(user_input) == 2 and user_input[1] == "all":
             print(show_all_contacts())
         elif command == "weather":
-            city = " ".join(user_input[1:])
-            print(get_weather(city))
+            if len(user_input) >= 2:
+                city = " ".join(user_input[1:])
+                print(get_weather(city))
+            else:
+                print("Invalid command. Type 'help' to see the available commands.")
         elif command == "time":
             print(get_current_time())
         elif command == "help":
