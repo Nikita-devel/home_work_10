@@ -13,17 +13,17 @@ class Name(Field):
         return str(self.value).capitalize()
 
 
-
 class Phone(Field):
     def __str__(self):
         return str(self.value)
 
 
-
 class Record:
-    def __init__(self, name):
+    def __init__(self, name, phone=Field(None)):
         self.name = name
         self.phones = []
+        if phone.value is not None:
+            self.phones.append(phone)
 
     def add_phone(self, phone):
         self.phones.append(phone)
@@ -89,11 +89,10 @@ def add_contact(name, phone):
     if name.value in contacts:
         record = contacts[name.value]
     else:
-        record = Record(name)
+        record = Record(name, phone)
     record.add_phone(phone)
     contacts.add_record(record)
     return "Contact added successfully"
-
 
 
 @input_error
