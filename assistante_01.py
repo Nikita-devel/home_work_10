@@ -1,4 +1,3 @@
-from collections import UserDict
 import datetime
 import requests
 
@@ -19,11 +18,14 @@ class Phone(Field):
 
 
 class Record:
-    def __init__(self, name, phone=Field(None)):
-        self.name = name
+    def __init__(self, name, phone=None):
         self.phones = []
-        if phone.value is not None:
-            self.phones.append(phone)
+        if name is not None:
+            self.name = Name(str(name).capitalize())
+            if phone is not None:
+                self.phones.append(Phone(phone))
+        else:
+            raise ValueError("Enter user name")
 
     def add_phone(self, phone):
         self.phones.append(phone)
@@ -44,19 +46,19 @@ class Record:
         return output
 
 
-class AddressBook(UserDict):
+class AddressBook(dict):
     def add_record(self, record):
-        self.data[record.name.value] = record
+        self[record.name.value] = record
 
     def delete_record(self, name):
-        del self.data[name.value]
+        del self[name.value]
 
     def edit_record(self, name, new_record):
-        self.data[name.value] = new_record
+        self[name.value] = new_record
 
     def search_records(self, query):
         search_results = AddressBook()
-        for record in self.data.values():
+        for record in self.values():
             if query.lower() in record.name.value.lower():
                 search_results.add_record(record)
         return search_results
@@ -70,7 +72,7 @@ def input_error(func):
         try:
             return func(*args, **kwargs)
         except KeyError:
-            return "Enter user name"
+            return "Contact not found"
         except ValueError:
             return "Give me name and phone please"
         except IndexError:
