@@ -19,13 +19,10 @@ class Phone(Field):
 
 class Record:
     def __init__(self, name, phone=None):
+        self.name = Name(str(name).capitalize())
         self.phones = []
-        if name is not None:
-            self.name = Name(str(name).capitalize())
-            if phone is not None:
-                self.phones.append(Phone(phone))
-        else:
-            raise ValueError("Enter user name")
+        if phone is not None:
+            self.phones.append(Phone(phone))
 
     def add_phone(self, phone):
         self.phones.append(phone)
@@ -87,13 +84,12 @@ contacts = AddressBook()
 @input_error
 def add_contact(name, phone):
     name = Name(str(name).capitalize())
-    phone = Phone(phone)
     if name.value in contacts:
         record = contacts[name.value]
     else:
         record = Record(name, phone)
+        contacts.add_record(record)
     record.add_phone(phone)
-    contacts.add_record(record)
     return "Contact added successfully"
 
 
