@@ -1,83 +1,10 @@
 import datetime
 import requests
-
-
-class Field:
-    def __init__(self, value=None):
-        self.value = value
-
-
-class Name(Field):
-    def __str__(self):
-        return str(self.value).capitalize()
-
-
-class Phone(Field):
-    def __str__(self):
-        return str(self.value)
-
-
-class Record:
-    def __init__(self, name, phone=None):
-        self.name = Name(str(name).capitalize())
-        self.phones = []
-        if phone is not None:
-            self.phones.append(Phone(phone))
-
-    def add_phone(self, phone):
-        self.phones.append(phone)
-
-    def delete_phone(self, phone):
-        self.phones.remove(phone)
-
-    def edit_phone(self, old_phone, new_phone):
-        if old_phone in self.phones:
-            index = self.phones.index(old_phone)
-            self.phones[index] = new_phone
-
-    def __str__(self):
-        output = f"Name: {self.name.value}\n"
-        for phone in self.phones:
-            output += f"Phone: {phone.value}\n"
-        output += "---------\n"
-        return output
-
-
-class AddressBook(dict):
-    def add_record(self, record):
-        self[record.name.value] = record
-
-    def delete_record(self, name):
-        del self[name.value]
-
-    def edit_record(self, name, new_record):
-        self[name.value] = new_record
-
-    def search_records(self, query):
-        search_results = AddressBook()
-        for record in self.values():
-            if query.lower() in record.name.value.lower():
-                search_results.add_record(record)
-        return search_results
+from contacts import Name, Phone, Record, AddressBook
+from decorators import input_error
 
 
 API_KEY = "653c3ccd328356a16a58c6dbd440c093"
-
-
-def input_error(func):
-    def inner(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except KeyError:
-            return "Contact not found"
-        except ValueError:
-            return "Give me name and phone please"
-        except IndexError:
-            return "Enter both name and phone"
-
-    return inner
-
-
 contacts = AddressBook()
 
 
@@ -86,17 +13,18 @@ def add_contact(name, phone):
     name = Name(str(name).capitalize())
     if name.value in contacts:
         record = contacts[name.value]
+        record.add_phone(phone)
     else:
         record = Record(name, phone)
         contacts.add_record(record)
-    record.add_phone(phone)
     return "Contact added successfully"
 
 
 @input_error
 def change_contact(name, old_phone, new_phone):
-    if name.value in contacts:
-        record = contacts[name.value]
+    matching_names = [n for n in contacts if n.lower() == name.lower()]
+    if matching_names:
+        record = contacts[matching_names[0]]
         record.edit_phone(old_phone, new_phone)
         return "Contact updated successfully"
     else:
@@ -105,9 +33,10 @@ def change_contact(name, old_phone, new_phone):
 
 @input_error
 def get_phone(name):
-    if name.value in contacts:
-        record = contacts[name.value]
-        return record.phones
+    matching_records = [record for record in contacts.values() if record.name.value.lower() == name.lower()]
+    if matching_records:
+        record = matching_records[0]
+        return ", ".join([str(phone) for phone in record.phones])
     else:
         return "Contact not found"
 
@@ -160,51 +89,45 @@ def parse_command(user_input):
     arguments = user_input[1:]
 
     if command == "hello":
-        print("How can I help you?")
+        return "How can I help you?"
     elif command == "add":
         if len(arguments) >= 2:
             name = Name(" ".join(arguments[:-1]))
             phone = Phone(arguments[-1])
-            print(add_contact(name, phone))
+            return add_contact(name, phone)
         else:
             raise ValueError("Give me name and phone please")
     elif command == "change":
-        if len(arguments) == 2:
-            name, phone = arguments
-            print(change_contact(name, phone))
+        if len(arguments) == 3:
+            name, old_phone, new_phone = arguments
+            return change_contact(name, old_phone, new_phone)
         else:
-            raise ValueError("Give me name and phone please")
+            raise ValueError("Give me name, old phone, and new phone please")
     elif command == "phone":
         if len(arguments) == 1:
             name = arguments[0]
-            try:
-                print(get_phone(name))
-            except KeyError:
-                print("Contact not found")
+            return get_phone(name)
         else:
             raise ValueError("Enter user name")
     elif command == "show":
         if len(arguments) == 1 and arguments[0] == "all":
-            print(show_all_contacts())
+            return show_all_contacts()
         else:
             raise ValueError("Invalid command. Type 'help' to see the available commands.")
     elif command == "weather":
         if len(arguments) == 1:
             city = arguments[0]
-            print(get_weather(city))
+            return get_weather(city)
         else:
             raise ValueError("Enter city name")
     elif command == "time":
-        print(get_current_time())
+        return get_current_time()
     elif command == "help":
-        print(help_commands())
+        return help_commands()
     elif command in ["good", "bye", "close", "exit"]:
-        print("Good bye!")
-        return True
+        return "Good bye!"
     else:
-        print("Invalid command. Type 'help' to see the available commands.")
-
-    return False
+        return "Invalid command. Type 'help' to see the available commands."
 
 
 def main():
@@ -212,7 +135,9 @@ def main():
     while True:
         try:
             user_input = input("Enter a command: ").lower().split(" ")
-            if parse_command(user_input):
+            result = parse_command(user_input)
+            print(result)
+            if result == "Good bye!":
                 break
         except Exception as e:
             print(str(e))
