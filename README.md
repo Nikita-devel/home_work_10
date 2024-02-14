@@ -1,3 +1,5 @@
+[Main page](https://github.com/Nikita-devel) | [Python Core Page](https://github.com/Nikita-devel/Python_Core)
+
 # Console Assistant Bot
 
 ## Project Description
