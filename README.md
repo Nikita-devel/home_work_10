@@ -10,21 +10,17 @@ This project is a command-line virtual assistant designed to manage an address b
 
 **Object-Oriented Design**: The project employs object-oriented programming principles, with distinct classes for fields, names, phones, records, and the address book. This design enhances code readability, maintainability, and extensibility.
 
-## Getting Started
-**Python**: Ensure Python is installed on your machine. If not, download it here.
-## Installation
-Clone the Repository:
+## Usage
 
-```bash
-git clone https://github.com/your-username/virtual-assistant-cli.git
-```
-Navigate to the Project Directory:
+1. Ensure Python is installed on your system.
+2. Install the required dependencies using the following command:
 
-bash
-Copy code
-cd virtual-assistant-cli
-Install Dependencies:
-
-bash
-Copy code
-pip install -r requirements.txt
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Run the script (assistant.py) in the command line:
+  
+  ```bash
+  python assistant.py
+  ```
+4. Follow the on-screen instructions to interact with the bot.
